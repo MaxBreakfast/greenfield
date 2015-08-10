@@ -30,7 +30,6 @@
         </form>
  -->
         <!-- search field -->
-        <p>selected: {{result.selected.name}}</p>
         <ui-select ng-model='result.selected'  on-select='selectSong(result.selected)'  theme="bootstrap" ng-disabled="false" reset-search-input="false" uiSelectConfig.appendToBody = true; style="width: 300px;">
             <ui-select-match placeholder="Enter a song...">{{$select.selected.name}}</ui-select-match>
             <ui-select-choices repeat="result in results |limitTo:10" refresh="getSongs($select.search)" refresh-delay="0">
@@ -45,7 +44,7 @@
             </div>
             <ul class='panel body list-unstyled'>
                 <!-- 'this is where the playlist is' -->
-                <li ng-repeat="song in playList" class="row-fluid inline ">
+                <li ng-repeat="song in playList track by $index" class="row-fluid inline ">
                     <p>
                         <div>{{song.name}} -{{song.artists[0]}} {{song.votes}}
                             <span  ng-click='upVote()'class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span>

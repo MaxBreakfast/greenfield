@@ -1,73 +1,54 @@
 angular.module('djBooth.controllers', [])
     // controller for handling the search function
 
-    .filter('propsFilter', function() {
-  return function(items, props) {
-    var out = [];
 
-    if (angular.isArray(items)) {
-      items.forEach(function(item) {
-        var itemMatches = false;
+.controller('searchController', function($scope, $window, searchSpotify, databaseInteraction) {
 
-        var keys = Object.keys(props);
-        for (var i = 0; i < keys.length; i++) {
-          var prop = keys[i];
-          var text = props[prop].toLowerCase();
-          if (item[prop].toString().toLowerCase().indexOf(text) !== -1) {
-            itemMatches = true;
-            break;
-          }
-        }
-
-        if (itemMatches) {
-          out.push(item);
-        }
-      });
-    } else {
-      // Let the output be the input untouched
-      out = items;
-    }
-
-    return out;
-  }
-})
-    .controller('searchController', function($scope, $window, searchSpotify) {
-
-        // the results array that houses the songs currently in the queue
+        // the playlist array that houses the songs currently in the queue
         $scope.playList = [];
-
-        $scope.results =[]
-        $scope.result =[]
-        //this function adds whichever song is clicked in the search field to the playlist 
+        // results is an array of results provided from spotify
+        $scope.results = [];
+        
+        //this function is used to call the 
         $scope.getSongs = function(reqString) {
-          searchSpotify.getData(reqString).then(function(data){
-            $scope.results = data;
-          })
-          .catch(function(err){
-            console.error(err)
-          })
+                searchSpotify.getData(reqString).then(function(data) {
+                        $scope.results = data;
+                    })
+                    .catch(function(err) {
+                        console.error(err)
+                    })
 
-          }
-          $scope.selectSong = function(data){
-            data.votes = 0;
-            data.id = Math.random()
-            console.log(data)
-            $scope.playList.push(data)
-          }
-            // searchSpotify.getData(data)
+            }
+            // when a song is selected it will be added to our server db, 
+            // get queue will be invoked immediately after the song has been added to the db 
+        $scope.selectSong = function(selectedSong) {
+                selectedSong.votes = 0;
+                console.log(selectedSong)
+                $scope.playList.push(selectedSong)
+                databaseInteraction.addSong(selectedSong).then(function() {
+                    $scope.getQueue();
+                })
+            }
+            // get the queue from the db so that everyone in the room can see the queue
+        $scope.getQueue = function() {
+            databaseInteraction.getQueue().then(function(data) {
+                $scope.playList = data;
+            })
+        }
 
 
-                // the data will also need to be added to the db
-                // we should probably not even have a $scope.results but actually just post this to the db via the server
-                // on success to posting to the db we should do a get request and update the users view
-  
+
+        // the data will also need to be added to the db
+        // we should probably not even have a $scope.results but actually just post this to the db via the server
+        // on success to posting to the db we should do a get request and update the users view
+
 
         $scope.upVote = function() {
-          console.log('upvote')
+            console.log('upvote')
 
         }
         $scope.downVote = function() {
-          console.log('downvote')
+            console.log('downvote')
         }
 
     })

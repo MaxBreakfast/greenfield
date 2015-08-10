@@ -85,6 +85,7 @@ var getQueue = function($http){
 
   return {
     addSong: addSong,
+    getQueue:getQueue
   }
 
 })
